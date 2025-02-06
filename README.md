@@ -49,3 +49,52 @@ This API provides a health check mechanism for web services, built with Node.js 
 - `Pragma: no-cache` to avoid caching on older HTTP/1.0 proxies.
 - `X-Content-Type-Options: nosniff` to block browsers from MIME-sniffing a response away from the declared content-type.
 
+
+# Assignment - 02 
+
+A comprehensive Bash script for setting up a cloud-based web application infrastructure with MySQL database and Node.js application deployment.
+
+## Features
+- Automated system updates and package installations
+- Swap space configuration (1GB)
+- MySQL installation and security configuration
+- Node.js and npm setup
+- Application user and group management
+- Systemd service configuration
+
+## Overview
+This test suite validates the functionality of the /healthz endpoint, ensuring proper health check responses and error handling according to REST API best practices.
+
+## Features Tested
+
+- Health Check Endpoint
+- Basic health check functionality
+- Database connection verification
+- Security headers validation
+- Query parameter handling
+- Content-length header validation
+- HTTP Method Validation
+- GET requests (valid)
+- POST requests (invalid)
+- PUT requests (invalid)
+- DELETE requests (invalid)
+
+## Health Check Validation
+Verifies 200 response for successful database connection
+Validates required security headers:
+Cache-Control
+Pragma
+X-Content-Type-Options
+
+## Error Handling
+- 400 response for requests with query parameters
+- 400 response for requests with Content-Length header
+- 405 response for invalid HTTP methods
+- 404 response for non-existent routes
+
+
+## Error Status Code	Description
+- 200	Successful health check
+- 400	Invalid request parameters
+- 404	Route not found
+- 405	Method not allowed
