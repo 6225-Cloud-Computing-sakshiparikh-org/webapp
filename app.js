@@ -20,6 +20,7 @@ app.use((req, res, next) => {
 
 let HealthCheck = null; 
 
+// Database Connection Test
 app.get('/healthz', async (req, res) => {
   try {
     if (!HealthCheck) {
