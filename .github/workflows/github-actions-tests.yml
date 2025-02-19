@@ -28,7 +28,7 @@ jobs:
             # Application to connect to MySQL.
             DB_NAME: test_db
             DB_USER: testuser
-            DB_PASS: testpassword
+            DB_PASSWORD: testpassword
             DB_HOST: 127.0.0.1
             PORT: 8080
 
