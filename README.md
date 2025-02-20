@@ -98,3 +98,43 @@ X-Content-Type-Options
 - 400	Invalid request parameters
 - 404	Route not found
 - 405	Method not allowed
+
+# Assignment - 03
+
+# GitHub Actions for Webapp
+
+This repository leverages GitHub Actions to run continuous integration (CI) tests for a web application that relies on Node.js and MySQL. The workflow is automatically triggered for every pull request targeting the `main` branch.
+
+## Workflow Overview
+
+The GitHub Actions workflow is defined in a YAML file and includes the following configuration:
+
+- **Trigger:**  
+  The workflow runs on pull requests to the `main` branch.
+
+- **Job Environment:**  
+  The CI job runs on an `ubuntu-latest` runner and sets up a MySQL service using the official MySQL 8.0 Docker image. Health checks ensure that the MySQL service is ready before tests are executed.
+
+- **Health Check Options:**  
+  The MySQL container uses health options to ensure it's ready:
+  - `--health-cmd="mysqladmin ping --silent"`
+  - `--health-interval=10s`
+  - `--health-timeout=5s`
+  - `--health-retries=3`
+
+## Workflow Steps
+
+1. **Checkout Code:**  
+   Uses `actions/checkout@v3` to retrieve the repository code.
+
+2. **Setup Node.js:**  
+   Uses `actions/setup-node@v3` to install Node.js version 16.
+
+3. **Install Dependencies:**  
+   Runs `npm install` to install required packages.
+
+4. **Wait for MySQL Service:**  
+   Executes a script to wait until the MySQL service is ready by checking if port `3306` is open.
+
+5. **Run Tests:**  
+   Executes `npm test` to run the application's test suite.
