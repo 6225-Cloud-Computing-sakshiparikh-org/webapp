@@ -178,23 +178,23 @@ jobs:
                   cleanup_credentials: true
 
             # Enable Compute Engine API and configure the firewall rule
-            - name: Enable Compute Engine API
-              run: |
-                  gcloud services enable compute.googleapis.com --quiet --project=${{ secrets.GCP_PROJECT_ID }}
+            # - name: Enable Compute Engine API
+            #   run: |
+            #       gcloud services enable compute.googleapis.com --quiet --project=${{ secrets.GCP_PROJECT_ID }}
 
-            - name: Configure GCP Firewall Rules
-              run: |
-                  if ! gcloud compute firewall-rules describe allow-webapp 2>/dev/null; then
-                    gcloud compute firewall-rules create allow-webapp \
-                      --direction=INGRESS \
-                      --priority=1000 \
-                      --network=default \
-                      --action=ALLOW \
-                      --rules=tcp:8080 \
-                      --source-ranges=0.0.0.0/0 \
-                      --target-tags=webapp \
-                      --project=${{ secrets.GCP_PROJECT_ID }}
-                  fi
+            # - name: Configure GCP Firewall Rules
+            #   run: |
+            #       if ! gcloud compute firewall-rules describe allow-webapp 2>/dev/null; then
+            #         gcloud compute firewall-rules create allow-webapp \
+            #           --direction=INGRESS \
+            #           --priority=1000 \
+            #           --network=default \
+            #           --action=ALLOW \
+            #           --rules=tcp:8080 \
+            #           --source-ranges=0.0.0.0/0 \
+            #           --target-tags=webapp \
+            #           --project=${{ secrets.GCP_PROJECT_ID }}
+            #       fi
 
             - name: Setup Packer
               uses: hashicorp/setup-packer@main
