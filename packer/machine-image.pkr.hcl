@@ -11,6 +11,7 @@ packer {
   }
 }
 
+#variables
 variable "aws_region" {
   type    = string
   default = null
