@@ -122,10 +122,7 @@ source "googlecompute" "ubuntu" {
   state_timeout = "10m"
   
   // Add tags for firewall rules
-  tags = ["http-server", "https-server"]
-  
-  // Update tags to match firewall rule
-  tags = ["webapp"]
+  tags = ["http-server", "https-server", "webapp"]
 
   // Add network configuration
   network_project_id = var.gcp_project_id
