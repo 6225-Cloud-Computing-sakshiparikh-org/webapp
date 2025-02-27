@@ -120,8 +120,7 @@ source "googlecompute" "ubuntu" {
     enable-oslogin = "FALSE"
   }
   state_timeout = "10m"
-  
-  // Add tags for firewall rules
+
   tags = ["http-server", "https-server", "webapp"]
 
   network_project_id = var.gcp_project_id
