@@ -90,7 +90,7 @@ source "amazon-ebs" "ubuntu" {
     max_attempts  = 50
   }
 
-  ami_users = [var.demo_user]  // Add this line to share AMI
+  ami_users = [var.demo_user]  
 
   tags = {
     Name    = "webapp-ami"
