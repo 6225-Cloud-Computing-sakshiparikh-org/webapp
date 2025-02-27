@@ -115,7 +115,7 @@ source "googlecompute" "ubuntu" {
   instance_name       = "packer-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
   machine_type        = "e2-micro"
   
-  // Replace invalid parameter with correct
+  
   metadata = {
     enable-oslogin = "FALSE"
   }
