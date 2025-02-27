@@ -18,10 +18,10 @@ jobs:
             mysql:
                 image: mysql:latest
                 env:
-                    MYSQL_ROOT_PASSWORD: ${{secrets.DB_PASSWORD}}
-                    MYSQL_DATABASE: ${{secrets.DB_NAME}}
-                    MYSQL_USER: ${{secrets.DB_USER}}
-                    MYSQL_PASSWORD: ${{secrets.DB_PASSWORD}}
+                    MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+                    MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+                    MYSQL_USER: ${{ secrets.DB_USER }}
+                    MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
                 ports:
                     - 3306:3306
                 options: >-
@@ -32,6 +32,7 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+
             - name: Upload Zip File
               uses: actions/upload-artifact@v4
               with:
@@ -89,11 +90,11 @@ jobs:
             - name: Create .env file
               run: |
                   touch .env
-                  echo "DB_PORT=${{secrets.DB_PORT}}" >> .env
-                  echo "DB_NAME=${{secrets.DB_NAME}}" >> .env
-                  echo "DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env
-                  echo "DB_USER=${{secrets.DB_USER}}" >> .env
-                  echo "DB_HOST=${{secrets.DB_HOST}}" >> .env
+                  echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+                  echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+                  echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+                  echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+                  echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
                   cat .env
 
             - name: Set up Node.js
@@ -108,7 +109,7 @@ jobs:
             - name: Configure Environment Variables
               run: |
                   echo DB_USER=${{ secrets.DB_USER }}
-                  echo DB_PASSWORD=${{ secrets.DB_PASSWORD}}
+                  echo DB_PASSWORD=${{ secrets.DB_PASSWORD }}
                   echo DB_NAME=${{ secrets.DB_NAME }}
                   echo DB_HOST=${{ secrets.DB_HOST }}
                   echo DB_PORT=${{ secrets.DB_PORT }}
@@ -124,17 +125,17 @@ jobs:
               run: npm test
               env:
                   DB_PORT: 3306
-                  DB_NAME: ${{secrets.DB_NAME}}
-                  DB_PASSWORD: ${{secrets.DB_PASSWORD}}
-                  DB_USER: ${{secrets.DB_USER}}
+                  DB_NAME: ${{ secrets.DB_NAME }}
+                  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+                  DB_USER: ${{ secrets.DB_USER }}
                   DB_HOST: "127.0.0.1"
 
-            # First, create the webapp.zip
+            # Create the webapp.zip artifact
             - name: Create build artifact
               run: |
                   zip -r webapp.zip . -x "packer/*" -x ".git/*" -x ".github/*" -x "node_modules/*" -x "coverage/*"
 
-              # Then check if it exists
+            # Verify that webapp.zip exists
             - name: Check if webapp.zip Exists
               run: |
                   if [ -f ./webapp.zip ]; then
@@ -176,7 +177,11 @@ jobs:
                   export_environment_variables: true
                   cleanup_credentials: true
 
-            # Add GCP Firewall Rules configuration
+            # Enable Compute Engine API and configure the firewall rule
+            - name: Enable Compute Engine API
+              run: |
+                  gcloud services enable compute.googleapis.com --quiet --project=${{ secrets.GCP_PROJECT_ID }}
+
             - name: Configure GCP Firewall Rules
               run: |
                   if ! gcloud compute firewall-rules describe allow-webapp 2>/dev/null; then
@@ -198,7 +203,7 @@ jobs:
 
             - name: Initialize Packer
               working-directory: ./packer
-              run: packer init aws-ubuntu.pkr.hcl
+              run: packer init machine-image.pkr.hcl
 
             - name: Validate Packer Template
               working-directory: ./packer
@@ -215,7 +220,7 @@ jobs:
                   PKR_VAR_demo_user: ${{ secrets.DEMO_USER }}
                   PKR_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
                   GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
-              run: packer validate aws-ubuntu.pkr.hcl
+              run: packer validate machine-image.pkr.hcl
 
             - name: Build AMI
               working-directory: ./packer
@@ -232,7 +237,7 @@ jobs:
                   PKR_VAR_demo_user: ${{ secrets.DEMO_USER }}
                   PKR_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
                   GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
-              run: packer build aws-ubuntu.pkr.hcl
+              run: packer build machine-image.pkr.hcl
 
             - name: Retrieve Latest AMI and Save AMI_ID
               id: share_ami
