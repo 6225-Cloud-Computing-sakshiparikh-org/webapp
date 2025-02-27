@@ -44,7 +44,6 @@ jobs:
               run: |
                   missing_secrets=()
 
-                  # Check each required secret
                   if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
                     missing_secrets+=("AWS_ACCESS_KEY_ID")
                   fi
@@ -79,7 +78,6 @@ jobs:
                     missing_secrets+=("SUBNET_ID")
                   fi
 
-                  # Check if any secrets are missing
                   if [ ${#missing_secrets[@]} -ne 0 ]; then
                     echo "Error: The following secrets are not set:"
                     printf '%s\n' "${missing_secrets[@]}"
@@ -177,24 +175,10 @@ jobs:
                   export_environment_variables: true
                   cleanup_credentials: true
 
-            # Enable Compute Engine API and configure the firewall rule
-            # - name: Enable Compute Engine API
-            #   run: |
-            #       gcloud services enable compute.googleapis.com --quiet --project=${{ secrets.GCP_PROJECT_ID }}
-
-            # - name: Configure GCP Firewall Rules
-            #   run: |
-            #       if ! gcloud compute firewall-rules describe allow-webapp 2>/dev/null; then
-            #         gcloud compute firewall-rules create allow-webapp \
-            #           --direction=INGRESS \
-            #           --priority=1000 \
-            #           --network=default \
-            #           --action=ALLOW \
-            #           --rules=tcp:8080 \
-            #           --source-ranges=0.0.0.0/0 \
-            #           --target-tags=webapp \
-            #           --project=${{ secrets.GCP_PROJECT_ID }}
-            #       fi
+            # IMPORTANT: Make sure billing is enabled for your GCP project!
+            - name: Enable Compute Engine API
+              run: |
+                  gcloud services enable compute.googleapis.com --quiet --project=${{ secrets.GCP_PROJECT_ID }}
 
             - name: Setup Packer
               uses: hashicorp/setup-packer@main
@@ -296,6 +280,4 @@ jobs:
               if: failure()
               run: |
                   echo "Workflow failed! Cleaning up resources..."
-                  # Add cleanup steps here
-                  # Example: Remove any temporary files or resources created during the workflow
                   rm -f ami_id.txt gcp_image_id.txt
