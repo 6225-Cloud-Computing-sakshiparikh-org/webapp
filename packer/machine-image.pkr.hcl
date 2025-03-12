@@ -1,10 +1,10 @@
 packer {
   required_plugins {
-       amazon = {
+    amazon = {
       source  = "github.com/hashicorp/amazon"
       version = "~> 1.2.6"
     }
-       googlecompute = {
+    googlecompute = {
       source  = "github.com/hashicorp/googlecompute"
       version = "~> 1.1.0"
     }
@@ -12,14 +12,14 @@ packer {
 }
 
 #variables
-#   variable "aws_region" {
-#   type    = string
-#   default = null
-# }
-
-  variable "source_ami" {
+variable "aws_region" {
   type    = string
-  default = "ami-0c7217cdde317cfec"  # Ubuntu 24.04 LTS AMI ID
+  default = null
+}
+
+variable "source_ami" {
+  type    = string
+  default = "ami-0c7217cdde317cfec"  # Ubuntu 24.04 LTS AMI ID(latest)
 }
 
 variable "ssh_username" {
@@ -88,7 +88,7 @@ source "amazon-ebs" "ubuntu" {
   aws_polling {
     delay_seconds = 30
     max_attempts  = 50
-            }
+  }
 
   ami_users = [var.demo_user]  
 
@@ -106,8 +106,8 @@ source "amazon-ebs" "ubuntu" {
 }
 
 // Add parallel GCP builder
- source "googlecompute" "ubuntu" {
-  # project_id          = var.gcp_project_id
+source "googlecompute" "ubuntu" {
+  project_id          = var.gcp_project_id
   source_image_family = "ubuntu-2204-lts"
   zone                = var.gcp_zone
   ssh_username        = "ubuntu"
