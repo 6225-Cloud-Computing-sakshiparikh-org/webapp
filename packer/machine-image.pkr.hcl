@@ -106,7 +106,7 @@ source "amazon-ebs" "ubuntu" {
 }
 
 // Add parallel GCP builder
-source "googlecompute" "ubuntu" {
+ source "googlecompute" "ubuntu" {
   # project_id          = var.gcp_project_id
   source_image_family = "ubuntu-2204-lts"
   zone                = var.gcp_zone
