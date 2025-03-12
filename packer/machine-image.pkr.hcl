@@ -12,20 +12,20 @@ packer {
 }
 
 #variables
-          variable "aws_region" {
+#   variable "aws_region" {
+#   type    = string
+#   default = null
+# }
+
+  variable "source_ami" {
   type    = string
-  default = null
+  default = "ami-0c7217cdde317cfec"  # Ubuntu 24.04 LTS AMI ID
 }
 
-      variable "source_ami" {
-#   type    = string
-#   default = "ami-0c7217cdde317cfec"  # Ubuntu 24.04 LTS AMI ID
-# }
-
-# variable "ssh_username" {
-#   type    = string
-#   default = "ubuntu"
-# }
+variable "ssh_username" {
+  type    = string
+  default = "ubuntu"
+}
 
 variable "subnet_id" {
   type    = string
