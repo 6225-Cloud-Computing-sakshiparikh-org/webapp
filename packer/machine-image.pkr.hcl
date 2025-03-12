@@ -88,7 +88,7 @@ source "amazon-ebs" "ubuntu" {
   aws_polling {
     delay_seconds = 30
     max_attempts  = 50
-  }
+            }
 
   ami_users = [var.demo_user]  
 
