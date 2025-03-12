@@ -1,6 +1,7 @@
 # webapp
 # Health Check API
 
+
 ## Description
 This API provides a health check mechanism for web services, built with Node.js and Express. It uses a MySQL database to log health check entries and ensures the service's availability.
 
