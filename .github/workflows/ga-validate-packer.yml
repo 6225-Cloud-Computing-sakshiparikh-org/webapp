@@ -1,7 +1,7 @@
 name: Gihub Actions Validate Packer
 
 on:
-    pull_request:
+      pull_request:
         branches: [main, Assignment4-test]
         paths:
             - "packer/**"
