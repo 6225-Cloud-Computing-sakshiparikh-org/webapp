@@ -18,14 +18,14 @@ packer {
 }
 
       variable "source_ami" {
-  type    = string
-  default = "ami-0c7217cdde317cfec"  # Ubuntu 24.04 LTS AMI ID
-}
+#   type    = string
+#   default = "ami-0c7217cdde317cfec"  # Ubuntu 24.04 LTS AMI ID
+# }
 
-variable "ssh_username" {
-  type    = string
-  default = "ubuntu"
-}
+# variable "ssh_username" {
+#   type    = string
+#   default = "ubuntu"
+# }
 
 variable "subnet_id" {
   type    = string
