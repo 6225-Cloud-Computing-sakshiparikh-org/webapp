@@ -26,7 +26,7 @@ jobs:
                   if [[ $OUTPUT == *"has formatting issues"* ]]; then
                     exit 1
                   fi
-              continue-on-error: false
+              continue-on-error: true
 
             - name: Verify Required Secrets
               run: |

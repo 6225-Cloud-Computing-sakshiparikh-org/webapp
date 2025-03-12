@@ -20,7 +20,7 @@ packer {
   variable "source_ami" {
   type    = string
   default = "ami-0c7217cdde317cfec"  # Ubuntu 24.04 LTS AMI ID
-            }
+}
 
 variable "ssh_username" {
   type    = string
@@ -32,24 +32,24 @@ variable "subnet_id" {
   default = null
 }
 
-variable "db_password" {
-  type    = string
-  sensitive = true
-}
+# variable "db_password" {
+#   type    = string
+#   sensitive = true
+# }
 
-variable "db_name" {
-  type    = string
-  sensitive = true
-}
+# variable "db_name" {
+#   type    = string
+#   sensitive = true
+# }
 
-variable "db_user" {
-  type    = string
-  sensitive = true
-}
+# variable "db_user" {
+#   type    = string
+#   sensitive = true
+# }
 
-variable "gcp_project_id" {
-  type    = string
-  default = null
+# variable "gcp_project_id" {
+#   type    = string
+#   default = null
 }
 
 variable "gcp_zone" {
