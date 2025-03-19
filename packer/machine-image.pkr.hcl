@@ -1,6 +1,6 @@
 packer {
   required_plugins {
-    amazon = {
+              amazon = {
       source  = "github.com/hashicorp/amazon"
       version = "~> 1.2.6"
     }
@@ -12,12 +12,12 @@ packer {
 }
 
 #variables
-variable "aws_region" {
+          variable "aws_region" {
   type    = string
   default = null
 }
 
-variable "source_ami" {
+          variable "source_ami" {
   type    = string
   default = "ami-0c7217cdde317cfec" # Ubuntu 24.04 LTS AMI ID(latest)
 }
