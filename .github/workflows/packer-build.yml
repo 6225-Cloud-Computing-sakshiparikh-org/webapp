@@ -63,7 +63,7 @@ jobs:
                   if [ ${#missing_secrets[@]} -ne 0 ]; then
                     echo "Error: The following secrets are not set:"
                     printf '%s\n' "${missing_secrets[@]}"
-                  exit 1
+                    exit 1
                   fi
                 # if [ -z "${{ secrets.DB_NAME }}" ]; then
                 #   missing_secrets+=("DB_NAME")
