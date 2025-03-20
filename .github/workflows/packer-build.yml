@@ -2,7 +2,7 @@ name: Build AMI
 
 on:
     push:
-        branches: [main, Assignment04-test]
+        branches: [main, Assignment05-test]
         paths:
             - "packer/**"
             - "**.js"
