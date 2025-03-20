@@ -1,11 +1,15 @@
+require('dotenv').config();
 const mysql = require("mysql2/promise");
 const Sequelize = require("sequelize");
-require('dotenv').config();
+const { DataTypes } = Sequelize;
 
 const databaseName = process.env.DB_NAME;
 const user = process.env.DB_USER;
 const password = process.env.DB_PASSWORD;
 const host = process.env.DB_HOST;
+
+// Create a variable to store the sequelize instance and models
+let db = {};
 
 async function initializeDatabase() {
   let tempConnection;
@@ -64,7 +68,9 @@ async function initializeDatabase() {
     },
   });
 
-  const HealthCheck = sequelize.define(
+  db.sequelize = sequelize;
+
+  db.HealthCheck = sequelize.define(
     "health_check",
     {
       check_id: {
@@ -79,12 +85,36 @@ async function initializeDatabase() {
       },
     },
     {
-      timestamps: false, 
+      timestamps: false,
       tableName: "healthz_api_checks",
       freezeTableName: true,
     }
   );
 
+  // Define File model directly here
+  db.File = sequelize.define('File', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true
+    },
+    file_name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    upload_date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    }
+  }, {
+    timestamps: false,
+    tableName: 'files',
+    freezeTableName: true
+  });
 
   try {
     await sequelize.sync({ alter: true });
@@ -94,7 +124,7 @@ async function initializeDatabase() {
     throw syncError;
   }
 
-  return { HealthCheck };
+  return db;
 }
 
-module.exports = { initializeDatabase };
+module.exports = { initializeDatabase, db };
