@@ -2,8 +2,8 @@ require('dotenv').config();
 const mysql = require("mysql2/promise");
 const Sequelize = require("sequelize");
 const { DataTypes } = Sequelize;
-const { trackDbQuery } = require('../utils/metrics');
-const logger = require('../utils/logger');
+const { trackDbQuery } = require('../utils/cloudwatch_metrics');
+const logger = require('../utils/logs');
 
 const databaseName = process.env.DB_NAME;
 const user = process.env.DB_USER;
