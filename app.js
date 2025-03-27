@@ -9,6 +9,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(trackApiMetrics);
+
 app.use((req, res, next) => {
   if (req.method === 'GET' && req.path === '/healthz') {
     const hasContent = Object.keys(req.query).length > 0
