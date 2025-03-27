@@ -2,6 +2,8 @@ require('dotenv').config();
 const mysql = require("mysql2/promise");
 const Sequelize = require("sequelize");
 const { DataTypes } = Sequelize;
+const { trackDbQuery } = require('../utils/cloudwatch_metrics');
+const logger = require('../utils/logs');
 
 const databaseName = process.env.DB_NAME;
 const user = process.env.DB_USER;
@@ -14,10 +16,11 @@ let db = {};
 async function initializeDatabase() {
   let tempConnection;
   try {
+    logger.info('Attempting to connect to database');
     const initialSequelize = new Sequelize(databaseName, user, password, {
       host,
       dialect: "mysql",
-      logging: false,
+      logging: (sql) => logger.debug(`SQL: ${sql}`),
       dialectOptions: {
         connectTimeout: 3000,
         dateStrings: true,
@@ -27,11 +30,15 @@ async function initializeDatabase() {
       timezone: "+00:00",
     });
 
-    await initialSequelize.authenticate();
-    console.log("Connecting to existing DB");
+    await trackDbQuery(
+      () => initialSequelize.authenticate(),
+      'authenticate'
+    );
+    logger.info("Connected to an existing database");
   } catch (error) {
+    // If database doesn't exist, create it
     if (error.original?.code === "ER_BAD_DB_ERROR") {
-      console.log("404: Database not found, 200: Successful: Creation of new one");
+      logger.info("Database not found, creating new one...");
 
       tempConnection = await mysql.createConnection({
         host,
@@ -40,22 +47,24 @@ async function initializeDatabase() {
         timezone: "+00:00",
       });
 
-      await tempConnection.query(
-        `CREATE DATABASE IF NOT EXISTS \`${databaseName}\``
+      await trackDbQuery(
+        () => tempConnection.query(`CREATE DATABASE IF NOT EXISTS \`${databaseName}\``),
+        'create_database'
       );
-      console.log(`DB ${databaseName} created successfully`);
+      logger.info(`Database ${databaseName} created successfully`);
     } else {
-      console.error("Database connection failed", error.message);
+      logger.error("Database connection failed", { error: error.message, stack: error.stack });
       throw error;
     }
   } finally {
     if (tempConnection) await tempConnection.end();
   }
 
+  // Create the sequelize instance
   const sequelize = new Sequelize(databaseName, user, password, {
     host,
     dialect: "mysql",
-    logging: false,
+    logging: (sql) => logger.debug(`SQL: ${sql}`),
     dialectOptions: {
       dateStrings: true,
       typeCast: true,
@@ -68,8 +77,10 @@ async function initializeDatabase() {
     },
   });
 
+  // Store sequelize in the db object
   db.sequelize = sequelize;
 
+  // Define models
   db.HealthCheck = sequelize.define(
     "health_check",
     {
@@ -86,7 +97,7 @@ async function initializeDatabase() {
     },
     {
       timestamps: false,
-      tableName: "healthz_api_checks",
+      tableName: "health_checks_table",
       freezeTableName: true,
     }
   );
@@ -116,11 +127,39 @@ async function initializeDatabase() {
     freezeTableName: true
   });
 
+  // Enhance model methods with metrics tracking
+  const originalCreate = db.File.create;
+  db.File.create = function (values, options) {
+    return trackDbQuery(
+      () => originalCreate.call(this, values, options),
+      'file_create'
+    );
+  };
+
+  const originalFindOne = db.File.findOne;
+  db.File.findOne = function (options) {
+    return trackDbQuery(
+      () => originalFindOne.call(this, options),
+      'file_findOne'
+    );
+  };
+
+  const originalDestroy = db.File.destroy;
+  db.File.destroy = function (options) {
+    return trackDbQuery(
+      () => originalDestroy.call(this, options),
+      'file_destroy'
+    );
+  };
+
   try {
-    await sequelize.sync({ alter: true });
-    console.log("DB models synchronized");
+    await trackDbQuery(
+      () => sequelize.sync({ alter: true }),
+      'sync_models'
+    );
+    logger.info("Database models synchronized");
   } catch (syncError) {
-    console.error("DB models synchronization failed:", syncError.message);
+    logger.error("Database synchronization failed", { error: syncError.message, stack: syncError.stack });
     throw syncError;
   }
 

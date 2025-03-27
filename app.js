@@ -2,12 +2,16 @@ const express = require('express');
 require('dotenv').config();
 const { initializeDatabase } = require('./models');
 const file_route = require('./routes/fileRoute');
+const { trackApiMetrics } = require('./utils/cloudwatch_metrics');
+const logger = require('./utils/logs');
 
 const app = express();
 
 // Add middleware to parse JSON and form data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(trackApiMetrics);
 
 app.use((req, res, next) => {
   if (req.method === 'GET' && req.path === '/healthz') {
