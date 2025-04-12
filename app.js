@@ -14,13 +14,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(trackApiMetrics);
 
 app.use((req, res, next) => {
-  if (req.method === 'GET' && req.path === '/healthz') {
+  if ((req.method === 'GET' && req.path === '/healthz') || (req.method === "GET" && req.path === "/cicd")) {
     const hasContent = Object.keys(req.query).length > 0
       || req.headers['content-length'] > 0
       || req.headers['transfer-encoding'];
 
     if (hasContent) {
       setHeaders(res);
+      logger.warn(
+        "Health check request with content body or query parameters"
+      );
       return res.status(400).end();
     }
   }
@@ -42,16 +45,46 @@ app.get('/healthz', async (req, res) => {
     }
     await HealthCheck.create({});
     setHeaders(res);
+    logger.info("Health check passed");
     res.status(200).end();
   } catch (error) {
-    console.error('Health check failed ', error.message);
     setHeaders(res);
+    logger.error("Health check failed", {
+      message: error.message,
+      stack: error.stack,
+    });
     res.status(503).end();
   }
 });
 
+app.get('/cicd', async (req, res) => {
+  try {
+    if (!HealthCheck) {
+      throw new Error('Database not connected');
+    }
+    await HealthCheck.create({});
+    setHeaders(res);
+    logger.info("CI/CD check passed");
+    res.status(200).end();
+  } catch (error) {
+    setHeaders(res);
+    logger.error("CI/CD check failed", {
+      message: error.message,
+      stack: error.stack,
+    });
+    res.status(503).end();
+  }
+});
+
+app.all("/cicd", (req, res) => {
+  logger.warn(`Method not allowed on CICD check endpoint: ${req.method}`);
+  setHeaders(res);
+  res.status(405).end();
+});
+
 app.all('/healthz', (req, res) => {
   setHeaders(res);
+  logger.warn("Health check request with invalid method");
   res.status(405).end();
 });
 
@@ -59,6 +92,7 @@ app.use('/', file_route)
 
 app.all('*', (req, res) => {
   setHeaders(res);
+  logger.warn("Request for undefined route");
   res.status(404).end();
 });
 
@@ -69,11 +103,15 @@ async function startServer() {
   try {
     const models = await initializeDatabase();
     HealthCheck = models.HealthCheck;
+    logger.info("Database connection successful");
     global.db = models;
   } catch (error) {
-    console.error('Database connection failed ', error.message);
+    logger.error("Database connection failed", {
+      message: error.message,
+      stack: error.stack,
+    });
   } finally {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
   }
 }
 
