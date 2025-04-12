@@ -28,6 +28,17 @@ webapp/
 └── README.md                       # Project documentation
 ```
 
+## Certificate Import
+To import the SSL certificate into AWS Certificate Manager (ACM), use the following AWS CLI command:
+```bash
+aws acm import-certificate \
+  --certificate fileb://certificate.crt \
+  --private-key fileb://private-key.key \
+  --certificate-chain fileb://certificate-chain.ca-bundle \
+  --region <your-region>
+  --profile <your-profile>
+```
+
 ## API Documentation
 
 ### Health Check Endpoint (`/healthz`)
