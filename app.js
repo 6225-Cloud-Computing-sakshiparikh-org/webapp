@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(trackApiMetrics);
 
 app.use((req, res, next) => {
-  if (req.method === 'GET' && req.path === '/healthz') {
+  if (req.method === 'GET' && req.path === '/healthz' || (req.method === "GET" && req.path === "/cicd")) {
     const hasContent = Object.keys(req.query).length > 0
       || req.headers['content-length'] > 0
       || req.headers['transfer-encoding'];
@@ -61,6 +61,30 @@ app.get('/healthz', async (req, res) => {
 app.all('/healthz', (req, res) => {
   setHeaders(res);
   logger.warn("Health check request with invalid method");
+  res.status(405).end();
+});
+
+app.get("/cicd", async (req, res) => {
+  try {
+    if (!HealthCheck) {
+      throw new Error("Database not connected");
+    }
+    await HealthCheck.create({});
+    setHeaders(res);
+    logger.info("CICD check success");
+    res.status(200).end();
+  } catch (error) {
+    logger.error(`CICD check failed: ${error.message}`, {
+      stack: error.stack,
+    });
+    setHeaders(res);
+    res.status(503).end();
+  }
+});
+
+app.all("/cicd", (req, res) => {
+  logger.warn(`Method not allowed on CICD check endpoint: ${req.method}`);
+  setHeaders(res);
   res.status(405).end();
 });
 
